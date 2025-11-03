@@ -31,7 +31,7 @@ pipeline {
         stage('Backup to S3') {
             steps {
                 echo "Stage 3: Running backup to S3..."
-                sh "sudo bash ${BACKUP_SCRIPT}"
+                sh "bash ${BACKUP_SCRIPT}"
                 echo "Backup completed and uploaded to S3."
             }
         }
@@ -39,10 +39,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executed successfully — deployment and backup done."
+            echo "✅ Pipeline executed successfully — deployment and backup done."
         }
         failure {
-            echo "Pipeline failed — please check Jenkins logs for details."
+            echo "❌ Pipeline failed — please check Jenkins logs for details."
         }
     }
 }
