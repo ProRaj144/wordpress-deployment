@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: wp_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_pass
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - wp-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: wp_phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpass123
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    networks:
+      - wp-network
+
+  wordpress:
+    build:
+      context: ./wordpress
+      dockerfile: Dockerfile
+    container_name: wp_app
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./data/wordpress:/var/www/html
+    networks:
+      - wp-network
+
+  nginx:
+    image: nginx:stable
+    container_name: wp_nginx
+    depends_on:
+      - wordpress
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data/nginx/conf:/etc/nginx/conf.d
+      - ./data/wordpress:/var/www/html:ro
+      - ./data/nginx/ssl:/etc/nginx/ssl
+    restart: unless-stopped
+    networks:
+      - wp-network
+
+networks:
+  wp-network:
+    driver: bridge

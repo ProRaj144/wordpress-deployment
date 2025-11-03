@@ -1,0 +1,11 @@
+data/mysql/
+
+*.log
+*.tmp
+*.pid
+
+data/backup/*.tar.gz
+
+
+*.swp
+*.swo
